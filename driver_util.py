@@ -47,3 +47,6 @@ def refresh(driver):
 
 def at_link(driver, url):
     return driver.current_url[:len(url)] == url
+
+def open_newtab(driver):
+    return driver.execute_script("window.open();")
