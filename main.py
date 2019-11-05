@@ -2,6 +2,7 @@ from driver_util import *
 import selenium.common.exceptions as se
 import time
 import datetime
+import threading
 
 class Action:
     def __init__(self, pred, f):
@@ -55,7 +56,7 @@ def user_login(driver):
     print('please login:')
     # driver.find_element_by_partial_link_text("请登录").click()
     driver.get(login_url)
-    print(driver.find_element_by_id("J_QRCodeImg").find_element_by_tag_name("img").get_attribute('src'))
+    print(driver.find_element_by_css_selector('#J_QRCodeImg > img').get_attribute('src'))
     wait_user(driver)
 
 def wait(driver, t):
@@ -109,16 +110,25 @@ def goto_order(driver):
     driver.get(link)
 
 if __name__ == '__main__':
-    driver = get_driver(headless=True, noimage=True)
-    # driver = get_driver()
-    print('driver started')
-    driver.get('https://www.taobao.com/')
-    s = Scheduler(driver)
-    s.add_action(lambda x: not logged_in(x), user_login)
-    s.add_action(lambda x: at_link(x, login_url), wait_user)
-    s.add_action(lambda x: at_link(x, order_url), order)
-    s.add_action(lambda x: at_link(x, submit_url), submit)
-    s.add_action(lambda x: True, goto_order)
-    print('scheduler running...')
-    s.run()
-    s.driver.quit()
+    ts = []
+    for i in range(5):
+        driver = get_driver(headless=True, noimage=True)
+        print('driver started')
+        # driver = get_driver()
+        driver.get('https://www.taobao.com/')
+        user_login(driver)
+
+        s = Scheduler(driver)
+        # s.add_action(lambda x: not logged_in(x), user_login)
+        # s.add_action(lambda x: at_link(x, login_url), wait_user)
+        s.add_action(lambda x: at_link(x, order_url), order)
+        s.add_action(lambda x: at_link(x, submit_url), submit)
+        s.add_action(lambda x: True, goto_order)
+
+        t = threading.Thread(target=s.run)
+        t.start()
+        ts.append(t)
+
+    for t in ts:
+        t.join()
+    
