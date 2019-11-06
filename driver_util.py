@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import random
 
+
 def get_driver(profile=None, headless=False, noimage=False, eager=False):
     option = webdriver.ChromeOptions()
     option.add_argument('disable-infobars')
@@ -15,7 +16,7 @@ def get_driver(profile=None, headless=False, noimage=False, eager=False):
     # disable log
     option.add_argument("--log-level=3")
     # disable selenium flag
-    option.add_experimental_option('excludeSwitches', ['enable-automation']) 
+    option.add_experimental_option('excludeSwitches', ['enable-automation'])
 
     if profile:
         option.add_argument("user-data-dir={}".format(profile))
@@ -24,29 +25,34 @@ def get_driver(profile=None, headless=False, noimage=False, eager=False):
     if noimage:
         prefs = {"profile.managed_default_content_settings.images": 2}
         option.add_experimental_option("prefs", prefs)
-    
+
     caps = DesiredCapabilities().CHROME
     if eager:
-        #caps["pageLoadStrategy"] = "normal"  #  complete
-        caps["pageLoadStrategy"] = "eager"  #  interactive
+        # caps["pageLoadStrategy"] = "normal"  #  complete
+        caps["pageLoadStrategy"] = "eager"  # interactive
         #caps["pageLoadStrategy"] = "none"
 
     # To avoid mysterious bug
-    option.add_argument("--remote-debugging-port={}".format(random.randint(10000, 65535)))
-    
+    option.add_argument(
+        "--remote-debugging-port={}".format(random.randint(10000, 65535)))
+
     driver = webdriver.Chrome(options=option, desired_capabilities=caps)
     return driver
+
 
 def wait_user(driver):
     old_url = driver.current_url
     while driver.current_url == old_url:
         pass
 
+
 def refresh(driver):
     driver.get(driver.current_url)
 
+
 def at_link(driver, url):
     return driver.current_url[:len(url)] == url
+
 
 def open_newtab(driver):
     return driver.execute_script("window.open();")
