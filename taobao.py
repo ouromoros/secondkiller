@@ -37,18 +37,18 @@ def wait(driver, t):
     print('refreshing', end='')
     while True:
         current_time = datetime.datetime.now()
-        if (t - current_time).seconds > 31:
+        if (t - current_time).seconds > 61:
             print('.', end='', flush=True)
             assert really_logged_in(driver)
-            time.sleep(30)
+            time.sleep(60)
         else:
             print()
             break
     
     # Wait until only 2 seconds left
     print('start...', end='', flush=True)
-    while t > current_time and (t - current_time).seconds > 2:
-        pass
+    if t > current_time:
+        time.sleep(max((t - current_time).seconds - 5, 0))
     print('ed!')
 
 def user_login(driver):
@@ -59,6 +59,8 @@ def user_login(driver):
     e =  WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#J_QRCodeImg > img")))
     print(e.get_attribute('src'))
     wait_user(driver)
+    # time.sleep(10)
+    # assert really_logged_in(driver)
 
 def order(driver):
     print('making order')
