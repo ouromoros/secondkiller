@@ -20,7 +20,9 @@ class Scheduler:
         while True:
             for ac in self.actions:
                 if ac.pred(self.driver):
-                    if ac.f(self.driver) == -1:
+                    if ac.f(self.driver):
+                        # wait for action to complete
+                        time.sleep(5)
                         print('finished!')
                         return
                     break
@@ -28,9 +30,9 @@ class Scheduler:
 
 if __name__ == '__main__':
     link = 'https://detail.tmall.com/item.htm?spm=a1z10.1-b-s.w5003-22197870099.1.4b523b8d3wROYH&id=607115918580&scene=taobao_shop'
-    bt = datetime.datetime.strptime("2019-11-07 10:00:00", '%Y-%m-%d %H:%M:%S')
+    bt = datetime.datetime.strptime("2019-11-07 22:00:00", '%Y-%m-%d %H:%M:%S')
 
-    driver = get_driver(headless=True, noimage=True, eager=True)
+    driver = get_driver(headless=False, noimage=True, nonblock=True)
     # driver = get_driver()
     print('driver started')
     driver.get('https://www.taobao.com/')

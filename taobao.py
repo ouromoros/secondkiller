@@ -58,9 +58,8 @@ def wait(driver, t):
 def user_login(driver):
     print('please login:')
     driver.get(LOGIN_URL)
-    time.sleep(1)
-    driver.execute_script("document.getElementById('J_Static2Quick').click();")
-    e = WebDriverWait(driver, 5).until(
+    # driver.execute_script("document.getElementById('J_Static2Quick').click();")
+    e = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, "#J_QRCodeImg > img")))
     print(e.get_attribute('src'))
     wait_user(driver)
@@ -72,17 +71,18 @@ def order(driver):
     print('making order')
     try:
         # try close dialog, selenium click doesn't work because it's wrapped in an iframe
-        driver.execute_script(
-            "document.getElementById('sufei-dialog-close').click();")
+        try:
+            driver.execute_script(
+                "document.getElementById('sufei-dialog-close').click();")
+        except Exception:
+            pass
 
         driver.find_element_by_id('J_LinkBuy').click()
         print('****Ordered****')
-        return
     except (se.ElementClickInterceptedException, se.ElementNotInteractableException):
         print('Blocked by something')
     except Exception:
         print("Buy not found")
-        refresh(driver)
 
 
 def submit(driver):
@@ -90,6 +90,6 @@ def submit(driver):
     try:
         driver.find_element_by_class_name('go-btn').click()
         print("****Submitted****")
-        return -1
+        return True
     except Exception as e:
         print(e)

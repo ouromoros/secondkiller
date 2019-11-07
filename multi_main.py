@@ -27,7 +27,6 @@ class MultiScheduler:
         for i in range(self.window_num):
             window = Window(
                 self.driver, self.driver.window_handles[i], self.actions, self.global_lock)
-            window.run()
             t = threading.Thread(target=window.run)
             ts.append(t)
             t.start()
@@ -48,29 +47,29 @@ class Window:
         while True:
             self.global_lock.acquire()
             self.driver.switch_to.window(self.window_handle)
+            print('switched to {}'.format(self.window_handle[-5:]))
             for ac in self.actions:
                 if ac.pred(self.driver):
-                    wait_time = ac.f(self.driver)
-                    self.global_lock.release()
-
-                    if wait_time == -1:
-                        print('finished!')
-                        return
-                    elif wait_time:
-                        time.sleep(wait_time)
-                    else:
-                        # yield control
-                        time.sleep(0)
+                    finish = ac.f(self.driver)
                     break
+
+            self.global_lock.release()
+            if finish:
+                # wait for action to complete
+                time.sleep(5)
+                print('finished!')
+                return
+            else:
+                # yield control
+                time.sleep(0)
 
 
 if __name__ == '__main__':
-    # link = 'https://detail.tmall.com/item.htm?spm=a1z10.1-b-s.w5003-22197870099.1.4b523b8d3wROYH&id=607115918580&scene=taobao_shop'
-    link = 'https://detail.tmall.com/item.htm?spm=a230r.1.14.23.47cd6aceuNJrF6&id=597960230568&ns=1&abbucket=18&skuId=4333867631862'
-    bt = datetime.datetime.strptime("2019-11-07 10:00:00", '%Y-%m-%d %H:%M:%S')
+    link = 'https://detail.tmall.com/item.htm?spm=a1z10.1-b-s.w5003-22197870099.1.4b523b8d3wROYH&id=607115918580&scene=taobao_shop'
+    bt = datetime.datetime.strptime("2019-11-07 22:00:00", '%Y-%m-%d %H:%M:%S')
 
     # driver = get_driver(eager=True)
-    driver = get_driver(noimage=True, headless=True, eager=True)
+    driver = get_driver(noimage=True, headless=True, nonblock=True)
     driver.get('https://www.taobao.com/')
     print('driver started')
     s = MultiScheduler(driver, 2)

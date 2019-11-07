@@ -3,7 +3,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import random
 
 
-def get_driver(profile=None, headless=False, noimage=False, eager=False):
+def get_driver(profile=None, headless=False, noimage=False, nonblock=False):
     option = webdriver.ChromeOptions()
     option.add_argument('disable-infobars')
     option.add_argument('--hide-scrollbars')
@@ -27,10 +27,10 @@ def get_driver(profile=None, headless=False, noimage=False, eager=False):
         option.add_experimental_option("prefs", prefs)
 
     caps = DesiredCapabilities().CHROME
-    if eager:
+    if nonblock:
         # caps["pageLoadStrategy"] = "normal"  #  complete
-        caps["pageLoadStrategy"] = "eager"  # interactive
-        #caps["pageLoadStrategy"] = "none"
+        # caps["pageLoadStrategy"] = "eager"  # interactive
+        caps["pageLoadStrategy"] = "none"
 
     # To avoid mysterious bug
     option.add_argument(
